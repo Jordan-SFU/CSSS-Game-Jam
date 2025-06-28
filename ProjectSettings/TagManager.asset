@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Atom
+  - Wall
   layers:
   - Default
   - TransparentFX

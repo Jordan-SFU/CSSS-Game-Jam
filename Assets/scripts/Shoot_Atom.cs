@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+using System.Linq;
 
 public class Shoot_Atom : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class Shoot_Atom : MonoBehaviour
     private bool isDragging = false; // Flag to track if dragging has started
 
     private Dictionary<string, int> elementCounts = new Dictionary<string, int>();
+
+    
     void Start()
     {
         // get the rigidbody
@@ -148,7 +151,9 @@ public class Shoot_Atom : MonoBehaviour
     void collectToFullAtomName()
         {
             atomName = "";
-            foreach (KeyValuePair<string, int> kvp in elementCounts)
+            
+            var sorted = elementCounts.OrderBy(pair => pair.Key);
+            foreach (KeyValuePair<string, int> kvp in sorted)
             {
                 atomName += kvp.Key + (kvp.Value > 1 ? kvp.Value.ToString() : "");
             }

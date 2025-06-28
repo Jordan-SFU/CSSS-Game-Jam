@@ -25,14 +25,18 @@ public class Shoot_Atom : MonoBehaviour
     private bool isDragging = false;
 
     private Dictionary<string, int> elementCounts = new Dictionary<string, int>();
+
+    // Reference to the levelManager
+    private levelManager levelManager;
+
     void Start()
     {
-        // get the rigidbody
+        // Get the rigidbody
         rb = GetComponent<Rigidbody2D>();
         particleSystem = GetComponent<ParticleSystem>();
         tmp = GetComponentInChildren<TextMeshPro>();
 
-        // init the line renderer
+        // Initialize the line renderer
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
@@ -52,6 +56,13 @@ public class Shoot_Atom : MonoBehaviour
         lineRenderer.numCapVertices = 10;
 
         tmp.text = atomName;
+
+        // Find the levelManager in the scene
+        levelManager = GameObject.Find("LevelManager").GetComponent<levelManager>();
+        if (levelManager == null)
+        {
+            Debug.LogError("levelManager not found in the scene!");
+        }
     }
 
     void Update()
@@ -67,68 +78,68 @@ public class Shoot_Atom : MonoBehaviour
         }
         tmp.text = atomName;
 
-        // Check if the mouse is pressed and the atom is not moving
+        // Dragging and shooting logic...
         if (Input.GetMouseButtonDown(0) && canDrag)
         {
-            // Start position for dragging
             startDragPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             startDragPosition.z = 0;
-
-            // Enable the line
             lineRenderer.enabled = true;
-
-            // Set dragging flag to true
             isDragging = true;
         }
 
-        // Check if the mouse is being held
         if (Input.GetMouseButton(0) && canDrag && isDragging)
         {
-            // Get the mouse position in world coordinates
             Vector3 currentMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             currentMousePosition.z = 0;
 
-            // Calculate the drag distance and clamp it to the maximum distance
             Vector3 dragVector = currentMousePosition - startDragPosition;
             float dragDistance = dragVector.magnitude;
-            float maxDistance = 5.0f; // Set your desired max distance
+            float maxDistance = 5.0f;
             if (dragDistance > maxDistance)
             {
                 dragVector = dragVector.normalized * maxDistance;
                 currentMousePosition = startDragPosition + dragVector;
             }
 
-            // Create the line to show the drag
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, currentMousePosition);
 
-            // Calculate force strength based on drag distance and adjust line thickness
             float forceStrength = Mathf.Clamp(dragDistance * shootForce, 0, maxForce);
             float thickness = Mathf.Lerp(0.1f, 0.5f, forceStrength / maxForce);
             lineRenderer.startWidth = thickness;
             lineRenderer.endWidth = thickness;
         }
 
-        // Check if the mouse is released
         if (Input.GetMouseButtonUp(0) && canDrag && isDragging)
         {
-            // Get the end position for dragging
             endDragPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             endDragPosition.z = 0;
 
-            // Calculate the direction and apply the force
             Vector3 direction = startDragPosition - endDragPosition;
             float forceStrength = Mathf.Clamp((startDragPosition - endDragPosition).magnitude * shootForce, 0, maxForce);
             rb.AddForce(direction.normalized * forceStrength, ForceMode2D.Impulse);
 
-            // Remove the line renderer
             lineRenderer.enabled = false;
-
-            // Increment the stroke count
             strokeCount++;
-
-            // Reset dragging flag
             isDragging = false;
+        }
+    }
+
+    void UpdateStateFromLevelManager()
+    {
+        if (levelManager == null) return;
+
+        foreach (var compoundState in levelManager.GetCompoundStateDictionary())
+        {
+            if (compoundState.Key == atomName)
+            {
+                if (currentState != compoundState.Value)
+                {
+                    currentState = compoundState.Value;
+                    Debug.Log($"State updated: {atomName} is now {currentState}");
+                }
+                break;
+            }
         }
     }
 
@@ -140,7 +151,7 @@ public class Shoot_Atom : MonoBehaviour
             GameObject atom = collision.gameObject;
             List<string> elements = parseIntoElements(collision.gameObject.GetComponent<atomInfo>().elementString);
 
-            for( int i =0; i < elements.Count; i++)
+            for (int i = 0; i < elements.Count; i++)
             {
                 if (!elementCounts.ContainsKey(elements[i]))
                 {
@@ -152,15 +163,17 @@ public class Shoot_Atom : MonoBehaviour
                 }
             }
 
-            collectToFullAtomName();  
+            collectToFullAtomName();
             atoms.Add(atom);
 
-            // delete the atom from the scene
+            // Update the current state based on the levelManager
+            UpdateStateFromLevelManager();
+
             Destroy(atom);
         }
         else if (collision.gameObject.CompareTag("Finish"))
         {
-            if(collision.gameObject.GetComponent<goalRequirement>().goalCompound == atomName)
+            if (collision.gameObject.GetComponent<goalRequirement>().goalCompound == atomName)
             {
                 Debug.Log("You made the correct compound: " + atomName + " with " + strokeCount + " strokes!");
             }
@@ -172,17 +185,16 @@ public class Shoot_Atom : MonoBehaviour
     }
 
     void collectToFullAtomName()
-        {
-            atomName = "";
-            
-            var sorted = elementCounts.OrderBy(pair => pair.Key);
-            foreach (KeyValuePair<string, int> kvp in sorted)
-            {
-                atomName += kvp.Key + (kvp.Value > 1 ? kvp.Value.ToString() : "");
-            }
-            
+    {
+        atomName = "";
 
+        var sorted = elementCounts.OrderBy(pair => pair.Key);
+        foreach (KeyValuePair<string, int> kvp in sorted)
+        {
+            atomName += kvp.Key + (kvp.Value > 1 ? kvp.Value.ToString() : "");
         }
+    }
+
     List<string> parseIntoElements(string atomName)
     {
         List<string> elements = new List<string>();
@@ -212,7 +224,6 @@ public class Shoot_Atom : MonoBehaviour
 
         return elements;
     }
-
 
     void onAtomHit(GameObject atom)
     {

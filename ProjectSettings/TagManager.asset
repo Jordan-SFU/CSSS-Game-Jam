@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Atom
   - Wall
+  - Fence
   layers:
   - Default
   - TransparentFX

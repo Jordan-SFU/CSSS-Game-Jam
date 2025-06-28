@@ -6,6 +6,8 @@ using System.Linq;
 public class Shoot_Atom : MonoBehaviour
 {
     public string atomName = "";
+    public string currentState = "solid";
+    private float mass = 1.0f;
     private List<GameObject> atoms = new List<GameObject>();
     private int strokeCount = 0;
 
@@ -20,11 +22,9 @@ public class Shoot_Atom : MonoBehaviour
     private TextMeshPro tmp;
 
     bool canDrag = true;
-    private bool isDragging = false; // Flag to track if dragging has started
+    private bool isDragging = false;
 
     private Dictionary<string, int> elementCounts = new Dictionary<string, int>();
-
-    
     void Start()
     {
         // get the rigidbody
@@ -39,11 +39,24 @@ public class Shoot_Atom : MonoBehaviour
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
 
+        // Set the material and color gradient for black-to-transparent fade
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.black, 0.0f), new GradientColorKey(Color.black, 1.0f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) }
+        );
+        lineRenderer.colorGradient = gradient;
+
+        // Set rounded edges
+        lineRenderer.numCapVertices = 10;
+
         tmp.text = atomName;
     }
 
     void Update()
     {
+        rb.mass = mass;
         if (rb.linearVelocity.magnitude > 0.1f)
         {
             canDrag = false;
@@ -75,12 +88,22 @@ public class Shoot_Atom : MonoBehaviour
             Vector3 currentMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             currentMousePosition.z = 0;
 
+            // Calculate the drag distance and clamp it to the maximum distance
+            Vector3 dragVector = currentMousePosition - startDragPosition;
+            float dragDistance = dragVector.magnitude;
+            float maxDistance = 5.0f; // Set your desired max distance
+            if (dragDistance > maxDistance)
+            {
+                dragVector = dragVector.normalized * maxDistance;
+                currentMousePosition = startDragPosition + dragVector;
+            }
+
             // Create the line to show the drag
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, currentMousePosition);
 
             // Calculate force strength based on drag distance and adjust line thickness
-            float forceStrength = Mathf.Clamp((startDragPosition - currentMousePosition).magnitude * shootForce, 0, maxForce);
+            float forceStrength = Mathf.Clamp(dragDistance * shootForce, 0, maxForce);
             float thickness = Mathf.Lerp(0.1f, 0.5f, forceStrength / maxForce);
             lineRenderer.startWidth = thickness;
             lineRenderer.endWidth = thickness;
@@ -113,7 +136,7 @@ public class Shoot_Atom : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Atom"))
         {
-            onAtomHit();
+            onAtomHit(collision.gameObject);
             GameObject atom = collision.gameObject;
             List<string> elements = parseIntoElements(collision.gameObject.GetComponent<atomInfo>().elementString);
 
@@ -191,8 +214,10 @@ public class Shoot_Atom : MonoBehaviour
     }
 
 
-    void onAtomHit()
+    void onAtomHit(GameObject atom)
     {
         particleSystem.Play();
+        mass += atom.GetComponent<atomInfo>().elementMass;
+        Debug.Log("Hit atom: " + atom.GetComponent<atomInfo>().elementString + " with mass: " + atom.GetComponent<atomInfo>().elementMass + ". New mass: " + mass);
     }
 }

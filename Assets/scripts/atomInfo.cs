@@ -6,15 +6,5 @@ public class atomInfo : MonoBehaviour
 
     public string elementString;
     public string elementState;
-
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public float elementMass;
 }

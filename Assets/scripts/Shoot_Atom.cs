@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class Shoot_Atom : MonoBehaviour
 {
+    private string atomName = "";
+    private int strokeCount = 0;
+
     private Vector3 startDragPosition;
     private Vector3 endDragPosition;
     private Rigidbody2D rb;
@@ -68,6 +71,9 @@ public class Shoot_Atom : MonoBehaviour
 
             // remove the line renderer
             lineRenderer.enabled = false;
+
+            // increment the stroke count
+            strokeCount++;
         }
     }
 
@@ -76,6 +82,11 @@ public class Shoot_Atom : MonoBehaviour
         if (collision.gameObject.CompareTag("Atom"))
         {
             onAtomHit();
+            atomName += collision.gameObject.GetComponent<atomInfo>().elementString;
+        }
+        else if (collision.gameObject.CompareTag("Finish"))
+        {
+            Debug.Log("yay you made "+ atomName + " with " + strokeCount + " strokes!");
         }
     }
 

@@ -9,7 +9,7 @@ public class Shoot_Atom : MonoBehaviour
     public string currentState = "solid";
     private float mass = 1.0f;
     private List<GameObject> atoms = new List<GameObject>();
-    private int strokeCount = 0;
+    public int strokeCount = 0;
 
     private Vector3 startDragPosition;
     private Vector3 endDragPosition;

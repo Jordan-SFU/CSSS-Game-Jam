@@ -123,10 +123,10 @@ public class Shoot_Atom : MonoBehaviour
             foreach (GameObject windTunnel in windTunnels)
             {
                 windTunnel.GetComponent<WindTunnel>().timeInTunnel = 0;
-                
+
             }
             // Remove the line renderer
-                lineRenderer.enabled = false;
+            lineRenderer.enabled = false;
 
             // Increment the stroke count
             strokeCount++;
@@ -258,5 +258,10 @@ public class Shoot_Atom : MonoBehaviour
         Debug.Log("Hit atom: " + atom.GetComponent<atomInfo>().elementString + " with mass: " + atom.GetComponent<atomInfo>().elementMass + ". New mass: " + mass);
 
 
+    }
+
+    public void KillPlayer()
+    {
+        Debug.Log("Player has been killed!");
     }
 }

@@ -9,7 +9,7 @@ public class Shoot_Atom : MonoBehaviour
     public string currentState = "solid";
     private float mass = 1.0f;
     private List<GameObject> atoms = new List<GameObject>();
-    private int strokeCount = 0;
+    public int strokeCount = 0;
 
     private Vector3 startDragPosition;
     private Vector3 endDragPosition;
@@ -267,8 +267,27 @@ public class Shoot_Atom : MonoBehaviour
 
     void onAtomHit(GameObject atom)
     {
+        // Change the particle color to match the atom's SpriteRenderer color
+        var mainModule = newParticleSystem.main;
+        SpriteRenderer atomSpriteRenderer = atom.GetComponent<SpriteRenderer>();
+        if (atomSpriteRenderer != null)
+        {
+            mainModule.startColor = atomSpriteRenderer.color;
+        }
+        else
+        {
+            Debug.LogWarning("SpriteRenderer not found on the collided atom: " + atom.name);
+        }
+
+        // Play the particle system
         newParticleSystem.Play();
+
+        // Update the mass
         mass += atom.GetComponent<atomInfo>().elementMass;
+
+        // Log the hit
         Debug.Log("Hit atom: " + atom.GetComponent<atomInfo>().elementString + " with mass: " + atom.GetComponent<atomInfo>().elementMass + ". New mass: " + mass);
+
+
     }
 }

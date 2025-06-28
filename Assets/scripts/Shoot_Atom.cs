@@ -20,6 +20,9 @@ public class Shoot_Atom : MonoBehaviour
     private LineRenderer lineRenderer;
 
     private TextMeshPro tmp;
+    public float maxFontSize = 40f;
+    public float minFontSize = 5f;
+
 
     bool canDrag = true;
     private bool isDragging = false;
@@ -56,7 +59,8 @@ public class Shoot_Atom : MonoBehaviour
         lineRenderer.numCapVertices = 10;
 
         tmp.text = atomName;
-
+        AdjustFontSizeToFit(tmp);
+        
         // Find the levelManager in the scene
         levelManager = GameObject.Find("LevelManager").GetComponent<levelManager>();
         if (levelManager == null)
@@ -65,6 +69,28 @@ public class Shoot_Atom : MonoBehaviour
         }
     }
 
+
+    public void AdjustFontSizeToFit(TextMeshPro textComponent)
+    {
+        RectTransform rect = textComponent.GetComponent<RectTransform>();
+        float maxWidth = rect.rect.width;
+
+        string text = textComponent.text;
+
+        float fontSize = maxFontSize;
+        textComponent.fontSize = fontSize;
+
+        while (fontSize >= minFontSize)
+        {
+            Vector2 size = textComponent.GetPreferredValues(text, maxWidth, 1000f);
+            if (size.x <= maxWidth)
+            {
+                break;
+            }
+            fontSize -= 1f;
+            textComponent.fontSize = fontSize;
+        }
+    }
     void Update()
     {
         rb.mass = mass;
@@ -77,6 +103,11 @@ public class Shoot_Atom : MonoBehaviour
             canDrag = true;
         }
         tmp.text = atomName;
+        
+        tmp.enableAutoSizing = true;
+        tmp.fontSizeMin = 1;
+        tmp.fontSizeMax = 20;
+        tmp.textWrappingMode = TextWrappingModes.NoWrap;
 
         // Dragging and shooting logic...
         if (Input.GetMouseButtonDown(0) && canDrag)

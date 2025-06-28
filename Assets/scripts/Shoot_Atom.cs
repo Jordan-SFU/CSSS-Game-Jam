@@ -50,7 +50,7 @@ public class Shoot_Atom : MonoBehaviour
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         Gradient gradient = new Gradient();
         gradient.SetKeys(
-            new GradientColorKey[] { new GradientColorKey(Color.black, 0.0f), new GradientColorKey(Color.black, 1.0f) },
+            new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
             new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) }
         );
         lineRenderer.colorGradient = gradient;

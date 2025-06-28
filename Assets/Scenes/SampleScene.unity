@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 283aa8dec50fc6e4fbeb7ebc0d321cec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goalCompound: HOH
+  goalCompound: H2O
 --- !u!1 &522609102
 GameObject:
   m_ObjectHideFlags: 0
@@ -696,7 +696,7 @@ Rigidbody2D:
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDamping: 1
-  m_AngularDamping: 0.05
+  m_AngularDamping: 1
   m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: 84178dea2e7bc144eb01a16991c43240, type: 2}
   m_IncludeLayers:
@@ -721,6 +721,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 093744c5d9a348c498015462d96cc353, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  atomName: 
   shootForce: 1
   maxForce: 20
 --- !u!212 &1481827763

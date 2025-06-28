@@ -18,6 +18,9 @@ public class Shoot_Atom : MonoBehaviour
 
     private TextMeshPro tmp;
 
+    bool canDrag = true;
+    private bool isDragging = false; // Flag to track if dragging has started
+
     private Dictionary<string, int> elementCounts = new Dictionary<string, int>();
     void Start()
     {
@@ -38,52 +41,68 @@ public class Shoot_Atom : MonoBehaviour
 
     void Update()
     {
-        tmp.text = atomName;
-        // Every frame check if the mouse is pressed
-        if (Input.GetMouseButtonDown(0))
+        if (rb.linearVelocity.magnitude > 0.1f)
         {
-            // start position for dragging
+            canDrag = false;
+        }
+        else
+        {
+            canDrag = true;
+        }
+        tmp.text = atomName;
+
+        // Check if the mouse is pressed and the atom is not moving
+        if (Input.GetMouseButtonDown(0) && canDrag)
+        {
+            // Start position for dragging
             startDragPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             startDragPosition.z = 0;
-            // enable the line
+
+            // Enable the line
             lineRenderer.enabled = true;
+
+            // Set dragging flag to true
+            isDragging = true;
         }
 
-        // every frame check if the mouse is being held
-        if (Input.GetMouseButton(0))
+        // Check if the mouse is being held
+        if (Input.GetMouseButton(0) && canDrag && isDragging)
         {
-            // get the mouse position in world coordinates
+            // Get the mouse position in world coordinates
             Vector3 currentMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             currentMousePosition.z = 0;
 
-            // create the line to show the drag
+            // Create the line to show the drag
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, currentMousePosition);
 
-            // calculate force strength based on drag distance and adjust line thickness
+            // Calculate force strength based on drag distance and adjust line thickness
             float forceStrength = Mathf.Clamp((startDragPosition - currentMousePosition).magnitude * shootForce, 0, maxForce);
             float thickness = Mathf.Lerp(0.1f, 0.5f, forceStrength / maxForce);
             lineRenderer.startWidth = thickness;
             lineRenderer.endWidth = thickness;
         }
 
-        // every frame check if the mouse is released
-        if (Input.GetMouseButtonUp(0))
+        // Check if the mouse is released
+        if (Input.GetMouseButtonUp(0) && canDrag && isDragging)
         {
-            // get the end position for dragging
+            // Get the end position for dragging
             endDragPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             endDragPosition.z = 0;
 
-            // calculate the direction and apply the force
+            // Calculate the direction and apply the force
             Vector3 direction = startDragPosition - endDragPosition;
             float forceStrength = Mathf.Clamp((startDragPosition - endDragPosition).magnitude * shootForce, 0, maxForce);
             rb.AddForce(direction.normalized * forceStrength, ForceMode2D.Impulse);
 
-            // remove the line renderer
+            // Remove the line renderer
             lineRenderer.enabled = false;
 
-            // increment the stroke count
+            // Increment the stroke count
             strokeCount++;
+
+            // Reset dragging flag
+            isDragging = false;
         }
     }
 

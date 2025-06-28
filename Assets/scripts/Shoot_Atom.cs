@@ -1,8 +1,10 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Shoot_Atom : MonoBehaviour
 {
     private string atomName = "";
+    private List<GameObject> atoms = new List<GameObject>();
     private int strokeCount = 0;
 
     private Vector3 startDragPosition;
@@ -82,11 +84,16 @@ public class Shoot_Atom : MonoBehaviour
         if (collision.gameObject.CompareTag("Atom"))
         {
             onAtomHit();
-            atomName += collision.gameObject.GetComponent<atomInfo>().elementString;
+            GameObject atom = collision.gameObject;
+            atomName += atom.GetComponent<atomInfo>().elementString;
+            atoms.Add(atom);
+
+            // delete the atom from the scene
+            Destroy(atom);
         }
         else if (collision.gameObject.CompareTag("Finish"))
         {
-            Debug.Log("yay you made "+ atomName + " with " + strokeCount + " strokes!");
+            Debug.Log("yay you made " + atomName + " with " + strokeCount + " strokes!");
         }
     }
 

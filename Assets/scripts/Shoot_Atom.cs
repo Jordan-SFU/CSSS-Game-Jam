@@ -18,6 +18,7 @@ public class Shoot_Atom : MonoBehaviour
 
     private TextMeshPro tmp;
 
+    private Dictionary<string, int> elementCounts = new Dictionary<string, int>();
     void Start()
     {
         // get the rigidbody
@@ -92,7 +93,21 @@ public class Shoot_Atom : MonoBehaviour
         {
             onAtomHit();
             GameObject atom = collision.gameObject;
-            atomName += atom.GetComponent<atomInfo>().elementString;
+            List<string> elements = parseIntoElements(collision.gameObject.GetComponent<atomInfo>().elementString);
+
+            for( int i =0; i < elements.Count; i++)
+            {
+                if (!elementCounts.ContainsKey(elements[i]))
+                {
+                    elementCounts.Add(elements[i], 1);
+                }
+                else
+                {
+                    elementCounts[elements[i]] += 1;
+                }
+            }
+
+            collectToFullAtomName();  
             atoms.Add(atom);
 
             // delete the atom from the scene
@@ -109,6 +124,46 @@ public class Shoot_Atom : MonoBehaviour
                 Debug.Log("You made the wrong compound: " + atomName + ". Expected: " + collision.gameObject.GetComponent<goalRequirement>().goalCompound);
             }
         }
+    }
+
+    void collectToFullAtomName()
+        {
+            atomName = "";
+            foreach (KeyValuePair<string, int> kvp in elementCounts)
+            {
+                atomName += kvp.Key + (kvp.Value > 1 ? kvp.Value.ToString() : "");
+            }
+            
+
+        }
+    List<string> parseIntoElements(string atomName)
+    {
+        List<string> elements = new List<string>();
+        string currentElement = "";
+
+        for (int i = 0; i < atomName.Length; i++)
+        {
+            char c = atomName[i];
+            if (char.IsUpper(c))
+            {
+                if (currentElement.Length > 0)
+                {
+                    elements.Add(currentElement);
+                }
+                currentElement = c.ToString();
+            }
+            else if (char.IsLower(c))
+            {
+                currentElement += c;
+            }
+        }
+
+        if (currentElement.Length > 0)
+        {
+            elements.Add(currentElement);
+        }
+
+        return elements;
     }
 
 

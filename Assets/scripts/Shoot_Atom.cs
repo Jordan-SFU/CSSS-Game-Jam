@@ -5,6 +5,7 @@ public class Shoot_Atom : MonoBehaviour
     private Vector3 startDragPosition;
     private Vector3 endDragPosition;
     private Rigidbody2D rb;
+    private ParticleSystem particleSystem;
     public float shootForce = 10f;
     public float maxForce = 20f;
     private LineRenderer lineRenderer;
@@ -13,6 +14,7 @@ public class Shoot_Atom : MonoBehaviour
     {
         // get the rigidbody
         rb = GetComponent<Rigidbody2D>();
+        particleSystem = GetComponent<ParticleSystem>();
 
         // init the line renderer
         lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -67,5 +69,19 @@ public class Shoot_Atom : MonoBehaviour
             // remove the line renderer
             lineRenderer.enabled = false;
         }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Atom"))
+        {
+            onAtomHit();
+        }
+    }
+
+
+    void onAtomHit()
+    {
+        particleSystem.Play();
     }
 }

@@ -1,9 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 public class Shoot_Atom : MonoBehaviour
 {
-    private string atomName = "";
+    public string atomName = "";
     private List<GameObject> atoms = new List<GameObject>();
     private int strokeCount = 0;
 
@@ -15,11 +16,14 @@ public class Shoot_Atom : MonoBehaviour
     public float maxForce = 20f;
     private LineRenderer lineRenderer;
 
+    private TextMeshPro tmp;
+
     void Start()
     {
         // get the rigidbody
         rb = GetComponent<Rigidbody2D>();
         particleSystem = GetComponent<ParticleSystem>();
+        tmp = GetComponentInChildren<TextMeshPro>();
 
         // init the line renderer
         lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -27,10 +31,13 @@ public class Shoot_Atom : MonoBehaviour
         lineRenderer.endWidth = 0.1f;
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
+
+        tmp.text = atomName;
     }
 
     void Update()
     {
+        tmp.text = atomName;
         // Every frame check if the mouse is pressed
         if (Input.GetMouseButtonDown(0))
         {
@@ -93,7 +100,14 @@ public class Shoot_Atom : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Finish"))
         {
-            Debug.Log("yay you made " + atomName + " with " + strokeCount + " strokes!");
+            if(collision.gameObject.GetComponent<goalRequirement>().goalCompound == atomName)
+            {
+                Debug.Log("You made the correct compound: " + atomName + " with " + strokeCount + " strokes!");
+            }
+            else
+            {
+                Debug.Log("You made the wrong compound: " + atomName + ". Expected: " + collision.gameObject.GetComponent<goalRequirement>().goalCompound);
+            }
         }
     }
 

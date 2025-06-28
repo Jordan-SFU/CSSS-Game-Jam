@@ -14,7 +14,7 @@ public class Shoot_Atom : MonoBehaviour
     private Vector3 startDragPosition;
     private Vector3 endDragPosition;
     private Rigidbody2D rb;
-    private ParticleSystem particleSystem;
+    private ParticleSystem newParticleSystem;
     public float shootForce = 10f;
     public float maxForce = 20f;
     private LineRenderer lineRenderer;
@@ -29,7 +29,7 @@ public class Shoot_Atom : MonoBehaviour
     {
         // get the rigidbody
         rb = GetComponent<Rigidbody2D>();
-        particleSystem = GetComponent<ParticleSystem>();
+        newParticleSystem = GetComponent<ParticleSystem>();
         tmp = GetComponentInChildren<TextMeshPro>();
 
         // init the line renderer
@@ -121,8 +121,14 @@ public class Shoot_Atom : MonoBehaviour
             float forceStrength = Mathf.Clamp((startDragPosition - endDragPosition).magnitude * shootForce, 0, maxForce);
             rb.AddForce(direction.normalized * forceStrength, ForceMode2D.Impulse);
 
+            GameObject[] windTunnels = GameObject.FindGameObjectsWithTag("Fan");
+            foreach (GameObject windTunnel in windTunnels)
+            {
+                windTunnel.GetComponent<WindTunnel>().timeInTunnel = 0;
+                
+            }
             // Remove the line renderer
-            lineRenderer.enabled = false;
+                lineRenderer.enabled = false;
 
             // Increment the stroke count
             strokeCount++;
@@ -216,7 +222,7 @@ public class Shoot_Atom : MonoBehaviour
 
     void onAtomHit(GameObject atom)
     {
-        particleSystem.Play();
+        newParticleSystem.Play();
         mass += atom.GetComponent<atomInfo>().elementMass;
         Debug.Log("Hit atom: " + atom.GetComponent<atomInfo>().elementString + " with mass: " + atom.GetComponent<atomInfo>().elementMass + ". New mass: " + mass);
     }

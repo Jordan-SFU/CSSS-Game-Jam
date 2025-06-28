@@ -7,6 +7,7 @@ TagManager:
   - Atom
   - Wall
   - Fence
+  - Fan
   layers:
   - Default
   - TransparentFX

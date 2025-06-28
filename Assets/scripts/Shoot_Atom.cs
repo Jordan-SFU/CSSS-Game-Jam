@@ -294,5 +294,8 @@ public class Shoot_Atom : MonoBehaviour
     public void KillPlayer()
     {
         Debug.Log("Player has been killed!");
+        // reload the current scene
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+
     }
 }
